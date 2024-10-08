@@ -4,11 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ThingSpeak Data Display with Drinking Water Status</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet"> <!-- Changed font to Montserrat -->
     <style>
         body {
-            font-family: 'Roboto', sans-serif;
-            background-color: #f0f8ff;
+            font-family: 'Montserrat', sans-serif; /* Updated font */
+            background-color: #ffffff; /* Set background to white */
             display: flex;
             justify-content: center;
             align-items: center;
@@ -33,15 +33,16 @@
             justify-content: center;
         }
         .card {
-            background-color: #ffffff;
+            background: linear-gradient(135deg, rgba(130, 172, 239, 0.6), rgba(255, 255, 255, 0.6)); /* Light gradient for cards */
             border-radius: 15px;
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
             padding: 20px;
             transition: transform 0.3s, box-shadow 0.3s;
             cursor: pointer;
             text-align: center;
-            position: relative;
             width: 300px;
+            color: #333; /* Card text color */
+            overflow: hidden; /* To prevent overflow of inner elements */
         }
         .card:hover {
             transform: translateY(-10px);
@@ -58,18 +59,26 @@
         .card h2 {
             margin-bottom: 10px;
             font-size: 24px;
-            color: #333;
+            color: #333; /* Header color for contrast */
         }
         .card span.value {
             display: block;
             font-size: 36px;
-            color: #666;
+            color: #333; /* Value color */
             margin-top: 15px;
             visibility: hidden;
         }
-        .safe { color: green; }
-        .warning { color: orange; }
-        .danger { color: red; }
+        .safe {
+            color: green; /* Safe color */
+            font-weight: bold; /* Bold text */
+        }
+        .warning {
+            color: #eaf3fa; /* Updated warning color */
+        }
+        .danger {
+            color: red; /* Danger color */
+            font-weight: bold; /* Bold text */
+        }
         .status {
             margin-top: 40px;
             font-size: 28px;
@@ -145,47 +154,45 @@
     }
 
     // Function to fetch data from ThingSpeak
-   // Function to fetch data from ThingSpeak
-   function fetchData(url, elementId, field, thresholds, commentElement, unit = "") {
-    fetch(url)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`Network response was not ok, status: ${response.status}`);
-            }
-            return response.json();
-        })
-        .then(data => {
-            if (data && data.feeds && data.feeds.length > 0) {  // Ensure feeds have entries
-                const latestEntry = data.feeds[0];
-                const value = parseFloat(latestEntry[field]);
-                if (!isNaN(value)) {
-                    document.getElementById(elementId).innerHTML = `${value} ${unit}`;
-                    const evaluation = evaluateThresholds(value, thresholds);
-                    document.getElementById(commentElement).textContent = evaluation.message;
-                    document.getElementById(commentElement).className = evaluation.class;
+    function fetchData(url, elementId, field, thresholds, commentElement, unit = "") {
+        fetch(url)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Network response was not ok, status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data && data.feeds && data.feeds.length > 0) {  // Ensure feeds have entries
+                    const latestEntry = data.feeds[0];
+                    const value = parseFloat(latestEntry[field]);
+                    if (!isNaN(value)) {
+                        document.getElementById(elementId).innerHTML = `${value} ${unit}`;
+                        const evaluation = evaluateThresholds(value, thresholds);
+                        document.getElementById(commentElement).textContent = evaluation.message;
+                        document.getElementById(commentElement).className = evaluation.class;
+                    } else {
+                        document.getElementById(elementId).textContent = "Invalid data";
+                        document.getElementById(commentElement).textContent = "Data error";
+                        document.getElementById(commentElement).className = "warning";
+                    }
                 } else {
-                    document.getElementById(elementId).textContent = "Invalid data";
-                    document.getElementById(commentElement).textContent = "Data error";
+                    // If no data is available or the feeds are empty
+                    document.getElementById(elementId).textContent = "No data";
+                    document.getElementById(commentElement).textContent = "No data available";
                     document.getElementById(commentElement).className = "warning";
                 }
-            } else {
-                // If no data is available or the feeds are empty
-                document.getElementById(elementId).textContent = "No data";
-                document.getElementById(commentElement).textContent = "No data available";
-                document.getElementById(commentElement).className = "warning";
-            }
 
-            // Update overall status message
-            updateOverallStatus();
-        })
-        .catch(error => {
-            console.error("Error fetching data: ", error);
-            document.getElementById(elementId).textContent = "Error";
-            document.getElementById(commentElement).textContent = "Error fetching data";
-            document.getElementById(commentElement).className = "danger";
-        });
-}
-
+                // Update overall status message
+                updateOverallStatus();
+            })
+            .catch(error => {
+                console.error("Error fetching data: ", error);
+                document.getElementById(elementId).textContent = "Error";
+                document.getElementById(commentElement).textContent = "Error fetching data";
+                document.getElementById(commentElement).className = "danger";
+            });
+    }
 
     // Function to update the overall water quality status
     function updateOverallStatus() {
@@ -217,7 +224,6 @@
     fetchData(salinityURL, "salinity", "field3", salinityThresholds, "salinityComment", "PSU");
     fetchData(tdsURL, "tds", "field4", tdsThresholds, "tdsComment", "ppm");
     fetchData(conductivityURL, "conductivity", "field5", conductivityThresholds, "conductivityComment", "μS/cm");
-
 
 </script>
 
